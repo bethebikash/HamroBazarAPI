@@ -1,6 +1,7 @@
 const express = require('express')
 const router = new express.Router()
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken')
 const User = require('../models/User')
 
 router.post('/users/signup', (req, res, next) => {
@@ -21,8 +22,9 @@ router.post('/users/signup', (req, res, next) => {
             address2: req.body.address2,
             address3: req.body.address3,
             image: req.body.image
-        }).then(() => {
-            res.status(200).json({status: 'User created successfully.'})
+        }).then((user) => {
+            let token = jwt.sign({ _id: user._id.toString() }, 'secretKey', { expiresIn: '10h' });
+            res.status(200).json({'status': 'User created successfully.', 'token':token})
         }).catch(next);
     });
 });
