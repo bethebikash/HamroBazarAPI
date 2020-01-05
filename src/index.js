@@ -1,5 +1,6 @@
 const express = require('express')
 const mongoose = require('mongoose')
+const userRouter = require('./routes/User')
 
 const app = express()
 app.use(express.json())
@@ -18,6 +19,8 @@ mongoose
         },
         err => console.log(err)
     )
+
+app.use(userRouter)
 
 app.listen(3000, () => {
     console.log(`App is running at localhost:3000`)
