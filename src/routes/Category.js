@@ -32,21 +32,38 @@ router.route('/categories').delete((req, res, next) => {
         .catch(next)
 })
 
-router
-    .route('/categories/:id')
-    .get((req, res, next) => {
-        Category.findById(req.params.id)
-            .populate({
-                path: 'tasks',
-                select: 'name'
-            })
-            .then(category => {
-                res.json(category)
-            })
-            .catch(next)
-    })
-    .post()
-    .put()
-    .delete()
+router.route('/categories/:id').get((req, res, next) => {
+    Category.findById(req.params.id)
+        .populate({
+            path: 'tasks',
+            select: 'name'
+        })
+        .then(category => {
+            res.json(category)
+        })
+        .catch(next)
+})
+
+router.route('/categories/:id').put((req, res, next) => {
+    Category.findOneAndUpdate(
+        { _id: req.params.id },
+        { $set: req.body },
+        { new: true }
+    )
+        .then(category => {
+            if (category == null) throw new Error('Category not found!')
+            res.json(category)
+        })
+        .catch(next)
+})
+
+router.route('/categories/:id').delete((req, res, next) => {
+    Category.findOneAndDelete({ _id: req.params.id })
+        .then(category => {
+            if (category == null) throw new Error('Category not found!')
+            res.json(category)
+        })
+        .catch(next)
+})
 
 module.exports = router
