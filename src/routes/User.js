@@ -4,8 +4,30 @@ const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const User = require('../models/User')
 const auth = require('../middlewares/auth')
+const multer = require('multer')
+const path = require("path");
 
-router.post('/users/signup', (req, res, next) => {
+const storage = multer.diskStorage({
+    destination: "./public/uploads/product-images",
+    filename: (req, file, callback) => {
+        let ext = path.extname(file.originalname);
+        callback(null, `${file.fieldname}-${Date.now()}${ext}`);
+    }
+});
+
+const imageFileFilter = (req, file, cb) => {
+    if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
+        return cb(new Error("Please provide an Image file."), false);
+    }
+    cb(null, true);
+};
+
+const upload = multer({
+    storage: storage,
+    fileFilter: imageFileFilter
+})
+
+router.post('/users/signup', upload.single('image'), (req, res, next) => {
     let password = req.body.password
     bcrypt.hash(password, 10, function(err, hash) {
         if (err) {
@@ -22,7 +44,7 @@ router.post('/users/signup', (req, res, next) => {
             address1: req.body.address1,
             address2: req.body.address2,
             address3: req.body.address3,
-            image: req.body.image
+            image: req.file.path
         })
             .then(user => {
                 let token = jwt.sign(
