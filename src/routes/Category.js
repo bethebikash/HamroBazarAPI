@@ -19,25 +19,8 @@ router.route('/categories').post((req, res, next) => {
         .catch(next)
 })
 
-router.route('/categories').put((req, res) => {
-    res.statusCode = 405
-    res.json({ message: 'Method not allowed' })
-})
-
-router.route('/categories').delete((req, res, next) => {
-    Category.deleteMany({})
-        .then(reply => {
-            res.json(reply)
-        })
-        .catch(next)
-})
-
 router.route('/categories/:id').get((req, res, next) => {
     Category.findById(req.params.id)
-        .populate({
-            path: 'tasks',
-            select: 'name'
-        })
         .then(category => {
             res.json(category)
         })

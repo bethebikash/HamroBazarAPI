@@ -18,18 +18,22 @@ const productSchema = new mongoose.Schema(
             type: String,
             required: true
         },
+        image: {
+            type: String,
+            default: ''
+        },
         category: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'Category'
+            ref: 'Category',
+            required: true
+        },
+        owner: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
+            required: true
         }
     },
     { timestamps: true }
 )
 
-userSchema.virtual('product', {
-    ref: 'Product',
-    localField: '_id',
-    foreignField: 'category'
-})
-
-module.exports = mongoose.model('Category', productSchema)
+module.exports = mongoose.model('Product', productSchema)

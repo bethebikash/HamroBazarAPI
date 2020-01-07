@@ -2,6 +2,7 @@ const express = require('express')
 const mongoose = require('mongoose')
 const userRouter = require('./routes/User')
 const categoryRouter = require('./routes/Category')
+const productRouter = require('./routes/Product')
 
 const app = express()
 app.use(express.json())
@@ -23,6 +24,7 @@ mongoose
 
 app.use(userRouter)
 app.use(categoryRouter)
+app.use(productRouter)
 
 app.listen(3000, () => {
     console.log(`App is running at localhost:3000`)
