@@ -3,58 +3,68 @@ const Product = require('../models/Product')
 const router = express.Router()
 const multer = require('multer')
 const auth = require('../middlewares/auth')
-const path = require("path");
+const path = require('path')
 
 const storage = multer.diskStorage({
-    destination: "./public/uploads/product-images",
+    destination: './public/uploads/product-images',
     filename: (req, file, callback) => {
-        let ext = path.extname(file.originalname);
-        callback(null, `${file.fieldname}-${Date.now()}${ext}`);
+        let ext = path.extname(file.originalname)
+        callback(null, `${file.fieldname}-${Date.now()}${ext}`)
     }
-});
+})
 
 const imageFileFilter = (req, file, cb) => {
     if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
-        return cb(new Error("Please provide an Image file."), false);
+        return cb(new Error('Please provide an Image file.'), false)
     }
-    cb(null, true);
-};
+    cb(null, true)
+}
 
 const upload = multer({
     storage: storage,
     fileFilter: imageFileFilter
 })
 
-router.route('/products').get(auth, (req, res, next) => {
-    Product.find({})
+router.route('/products').get((req, res, next) => {
+
+    const sort = {}
+    if(req.query.sortBy){
+        const parts = req.query.sortBy.split(':')
+        sort[parts[0]] = parts[1] === 'desc' ? -1 : 1
+    }
+
+    Product.find().sort(sort)
         .then(products => {
             res.json(products)
         })
         .catch(next)
 })
 
-router.route('/products').post(upload.single('image'), auth, (req, res, next) => {
-    Product.create({
-        name: req.body.name,
-        price: req.body.price,
-        condition: req.body.condition,
-        image: req.file.path,
-        category: req.body.category,
-        owner: req.user._id
-    })
-        .then(product => {
-            res.statusCode = 201
-            res.json(product)
+router
+    .route('/products')
+    .post(upload.single('image'), auth, (req, res, next) => {
+        Product.create({
+            name: req.body.name,
+            price: req.body.price,
+            condition: req.body.condition,
+            image: req.file.path,
+            category: req.body.category,
+            owner: req.user._id
         })
-        .catch(next)
-})
+            .then(product => {
+                res.statusCode = 201
+                res.json(product)
+            })
+            .catch(next)
+    })
 
-router.route('/products/:id').get(auth, (req, res, next) => {
+router.route('/products/:id').get((req, res, next) => {
     Product.findById(req.params.id)
         .populate({
             path: 'category',
             select: 'name'
-        }).populate({
+        })
+        .populate({
             path: 'owner',
             select: 'name'
         })
