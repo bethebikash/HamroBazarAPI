@@ -2,6 +2,7 @@ const express = require('express')
 const Product = require('../models/Product')
 const router = express.Router()
 const multer = require('multer')
+const auth = require('../middlewares/auth')
 const path = require("path");
 
 const storage = multer.diskStorage({
@@ -24,7 +25,7 @@ const upload = multer({
     fileFilter: imageFileFilter
 })
 
-router.route('/products').get((req, res, next) => {
+router.route('/products').get(auth, (req, res, next) => {
     Product.find({})
         .then(products => {
             res.json(products)
@@ -32,14 +33,14 @@ router.route('/products').get((req, res, next) => {
         .catch(next)
 })
 
-router.route('/products').post(upload.single('image'),(req, res, next) => {
+router.route('/products').post(upload.single('image'), auth, (req, res, next) => {
     Product.create({
         name: req.body.name,
         price: req.body.price,
         condition: req.body.condition,
         image: req.file.path,
         category: req.body.category,
-        owner: req.body.owner
+        owner: req.user._id
     })
         .then(product => {
             res.statusCode = 201
@@ -48,7 +49,7 @@ router.route('/products').post(upload.single('image'),(req, res, next) => {
         .catch(next)
 })
 
-router.route('/products/:id').get((req, res, next) => {
+router.route('/products/:id').get(auth, (req, res, next) => {
     Product.findById(req.params.id)
         .populate({
             path: 'category',
@@ -63,7 +64,7 @@ router.route('/products/:id').get((req, res, next) => {
         .catch(next)
 })
 
-router.route('/products/:id').put((req, res, next) => {
+router.route('/products/:id').put(auth, (req, res, next) => {
     Product.findOneAndUpdate(
         { _id: req.params.id },
         { $set: req.body },
@@ -76,7 +77,7 @@ router.route('/products/:id').put((req, res, next) => {
         .catch(next)
 })
 
-router.route('/products/:id').delete((req, res, next) => {
+router.route('/products/:id').delete(auth, (req, res, next) => {
     Product.findOneAndDelete({ _id: req.params.id })
         .then(product => {
             if (product == null) throw new Error('Product not found!')
