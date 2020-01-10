@@ -89,7 +89,7 @@ router.post('/users/login', (req, res, next) => {
         .catch(next)
 })
 
-router.get('/users/me', auth, (req, res) => {
+router.get('/users/me', auth, (req, res, next) => {
     res.json({ _id: req.user._id, name: req.user.name, email: req.user.email, phone: req.user.phone, mobile: req.user.mobile, address1: req.user.address1, address2: req.user.address2, address3: req.user.address3, image:req.user.image });
 });
 

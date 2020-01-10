@@ -8,6 +8,7 @@ const auth = (req, res, next) => {
         err.status = 401
         return next(err)
     }
+
     let token = authHeader.slice(7, authHeader.length)
     let decoded
     try {
